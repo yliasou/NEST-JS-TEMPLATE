@@ -1,0 +1,34 @@
+# Nestjs specific
+/dist
+/node_modules
+/build
+/tmp
+
+# OS
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# dotenv environment variable files
+.env
+.env.development
+.env.test
+.env.production
+.env.railway.env
+.env.staging
+
+# temp directory
+.temp
+.tmp
+
+# Rapports de charge Artillery (générés localement)
+tests/artillery/results/*
+!tests/artillery/results/.gitkeep
+

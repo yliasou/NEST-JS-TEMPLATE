@@ -1,0 +1,9 @@
+// Point d’entrée Prisma : générateur + datasource.
+// Enums et modèles domaine : ./models/*.prisma (fusionnés par le CLI).
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}

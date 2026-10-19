@@ -1,0 +1,16 @@
+// Module d'exemple : à dupliquer puis supprimer pour un nouveau domaine.
+
+model Example {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User? @relation("ExampleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([isActive, createdAt])
+  @@index([createdById])
+}
