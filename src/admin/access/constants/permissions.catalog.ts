@@ -47,10 +47,18 @@ export const EXAMPLES_PERMISSIONS = {
   DELETE: "examples.examples.delete",
 } as const;
 
+export const PEOPLE_PERMISSIONS = {
+  VIEW: "people.people.view",
+  CREATE: "people.people.create",
+  UPDATE: "people.people.update",
+  DELETE: "people.people.delete",
+} as const;
+
 export const ALL_PERMISSION_KEYS = [
   ...Object.values(ADMIN_PERMISSIONS),
   ...Object.values(MARKETING_PERMISSIONS),
   ...Object.values(EXAMPLES_PERMISSIONS),
+  ...Object.values(PEOPLE_PERMISSIONS),
 ] as const;
 
 export type PermissionKey = (typeof ALL_PERMISSION_KEYS)[number];
@@ -130,6 +138,12 @@ export function getPermissionsCatalog(): PermissionCatalogGroup[] {
       EXAMPLES_PERMISSIONS.CREATE,
       EXAMPLES_PERMISSIONS.UPDATE,
       EXAMPLES_PERMISSIONS.DELETE,
+    ]),
+    groupFrom("people", "people", [
+      PEOPLE_PERMISSIONS.VIEW,
+      PEOPLE_PERMISSIONS.CREATE,
+      PEOPLE_PERMISSIONS.UPDATE,
+      PEOPLE_PERMISSIONS.DELETE,
     ]),
   ];
 }

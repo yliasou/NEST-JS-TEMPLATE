@@ -1,29 +1,29 @@
 // Utilisateurs, profils, permissions.
 
 model User {
-  id              String       @id @default(cuid())
-  email           String?      @unique
-  phone           String?      @unique
-  avatarUrl       String?
-  passwordHash    String
-  dateOfBirth     DateTime?
-  gender          Gender?
+  id                 String       @id @default(cuid())
+  email              String?      @unique
+  phone              String?      @unique
+  avatarUrl          String?
+  passwordHash       String
+  dateOfBirth        DateTime?
+  gender             Gender?
   residentialAddress String?
-  authProvider    AuthProvider @default(LOCAL)
-  role            Role         @default(USER)
-  isActive        Boolean      @default(true)
-  emailVerifiedAt DateTime?
-  phoneVerifiedAt DateTime?
-  lastLoginAt     DateTime?
+  authProvider       AuthProvider @default(LOCAL)
+  role               Role         @default(USER)
+  isActive           Boolean      @default(true)
+  emailVerifiedAt    DateTime?
+  phoneVerifiedAt    DateTime?
+  lastLoginAt        DateTime?
   /// Dernière requête authentifiée. N'alimente pas `updatedAt`.
-  lastRequestAt   DateTime?
+  lastRequestAt      DateTime?
   /// Hash bcrypt d'un OTP réutilisable. Null si le compte n'en a pas.
-  permanentOtpHash String?
+  permanentOtpHash   String?
   /// Code OTP réutilisable renvoyé par send-code. Null si le compte n'en a pas.
-  permanentOtpCode String?
-  deletedAt       DateTime?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  permanentOtpCode   String?
+  deletedAt          DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
   profile      UserProfile?
   adminProfile AdminProfile?
@@ -31,13 +31,14 @@ model User {
   notifications         Notification[]
   annonceReads          AnnonceRead[]
   newsletterSubscribers NewsletterSubscriber[]
-  auditLogsAsActor      AuditLog[]       @relation("AuditLogActor")
-  auditLogsAsTarget     AuditLog[]       @relation("AuditLogTarget")
+  auditLogsAsActor      AuditLog[]             @relation("AuditLogActor")
+  auditLogsAsTarget     AuditLog[]             @relation("AuditLogTarget")
   analyticsEvents       AnalyticsEvent[]
   pushTokens            PushToken[]
   emailLogs             EmailLog[]
   userPermissions       UserPermission[]
-  examplesCreated       Example[]        @relation("ExampleCreatedBy")
+  examplesCreated       Example[]              @relation("ExampleCreatedBy")
+  peopleCreated         Person[]               @relation("PersonCreatedBy")
 
   @@index([email])
   @@index([phone])

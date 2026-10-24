@@ -26,6 +26,7 @@
     "prisma:format": "prisma format",
     "prisma:validate": "prisma validate",
     "prisma:seed": "tsx prisma/seed.ts",
+    "modules:generate": "node scripts/generate-module.mjs",
     "artillery:smoke": "dotenv -e .env -- node tests/artillery/run.js smoke",
     "artillery:load": "dotenv -e .env -- node tests/artillery/run.js load"
   },

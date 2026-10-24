@@ -24,6 +24,7 @@ enum AuditEntity {
   ANNONCE
   NEWSLETTER_SUBSCRIBER
   EXAMPLE
+  PERSON
 }
 
 enum AuditAction {
@@ -50,6 +51,9 @@ enum AuditAction {
   EXAMPLE_CREATE
   EXAMPLE_UPDATE
   EXAMPLE_DELETE
+  PERSON_CREATE
+  PERSON_UPDATE
+  PERSON_DELETE
 }
 
 enum AuthProvider {

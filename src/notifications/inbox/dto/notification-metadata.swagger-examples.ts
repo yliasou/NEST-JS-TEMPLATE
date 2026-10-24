@@ -1,4 +1,4 @@
-import type { ExamplesObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
+import type { ExamplesObject } from "@nestjs/swagger";
 import { NotificationType, Role } from "@prisma/client";
 
 /** Identifiants fictifs réutilisés dans les exemples Swagger (remplacer par de vrais ids en test). */

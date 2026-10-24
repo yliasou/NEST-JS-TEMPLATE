@@ -11,7 +11,7 @@ import type { ServerOptions } from "socket.io";
  * Sans effet visible sur une instance unique.
  */
 export class RedisIoAdapter extends IoAdapter {
-  private readonly logger = new Logger(RedisIoAdapter.name);
+  protected readonly logger = new Logger(RedisIoAdapter.name);
   private adapterConstructor: ReturnType<typeof createAdapter> | null = null;
   private clients: Redis[] = [];
 

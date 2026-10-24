@@ -28,10 +28,15 @@ Un module d'exemple (`src/examples`) montre la convention à suivre pour chaque 
 npm install
 cp .env.example .env          # puis renseigner JWT_SECRET (32 caractères min.)
 docker compose up -d          # PostgreSQL + Redis locaux
+npm run prisma:generate       # génère le client Prisma (requis avant seed / start)
 npm run prisma:migrate:deploy # applique la migration initiale
 npm run prisma:seed           # admin@app.local / ChangeMe123! + un utilisateur démo
 npm run start:dev
 ```
+
+`npm run prisma:generate` est à relancer après chaque modification de `prisma/models/*.prisma` (`npm run prisma:migrate` le fait automatiquement). Sans lui, le seed échoue avec `Cannot find module '.prisma/client/default'`.
+
+Les versions des dépendances sont figées par `package-lock.json` : préférer `npm ci` pour installer exactement les mêmes versions que le template.
 
 - API : http://localhost:3000/api/v1
 - Swagger : http://localhost:3000/api/v1/docs
@@ -48,7 +53,7 @@ Sans `REDIS_URL`, l'application démarre quand même : cache en mémoire, OTP in
 3. `src/common/i18n/locales/*.json` : `emailBrandTitle`, `emailSignatureTeam`, textes de pied d'e-mail.
 4. `src/emailing/templates/brand.constants.ts` : palette des e-mails.
 5. `docker-compose.yml` : noms des conteneurs locaux.
-6. Dupliquer `src/examples` pour le premier domaine, puis supprimer le module d'exemple (voir plus bas).
+6. Générer les domaines avec `npm run modules:generate -- <domaine>`, puis supprimer le module d'exemple quand il ne sert plus (voir plus bas).
 
 ## Modules inclus
 
@@ -173,12 +178,30 @@ src/<domaine>/
   utils/                         # fonctions pures + *.spec.ts
 ```
 
-Pour créer un domaine :
+### Générer un domaine
 
-1. Ajouter le modèle dans `prisma/models/<domaine>.prisma`, puis `npm run prisma:migrate`.
-2. Copier `src/examples` et renommer.
-3. Ajouter les permissions au catalogue, les actions/entités d'audit dans `prisma/models/enums.prisma`, les clés i18n dans `fr.json` / `en.json`.
-4. Importer le module dans `src/app.module.ts`.
+```bash
+npm run modules:generate -- products                    # un domaine
+npm run modules:generate -- products blog-posts orders  # plusieurs d'un coup
+npm run modules:generate -- people:person               # pluriel:singulier si le pluriel est irrégulier
+npm run modules:generate -- products --dry-run          # liste les fichiers sans rien écrire
+npm run modules:generate -- products --with-cron        # garde le cron de purge des inactifs
+```
+
+Le nom est donné au pluriel en kebab-case (le singulier est déduit : `categories` → `category`). Le script copie `src/examples` en renommant fichiers, classes, constantes, routes (`/admin/products`), clés de cache et de queue, puis :
+
+- crée `prisma/models/product.prisma` et la relation `productsCreated` sur `User` ;
+- ajoute `PRODUCT` / `PRODUCT_CREATE|UPDATE|DELETE` aux enums d'audit et les méthodes `product*` à `AuditActionsService` ;
+- ajoute `PRODUCTS_PERMISSIONS` (`products.products.view|create|update|delete`) au catalogue et à `src/admin/access/index.ts` ;
+- ajoute les clés i18n dans `fr.json` / `en.json` ;
+- importe `ProductsModule` dans `src/app.module.ts` ;
+- formate le tout (Prettier, `prisma format`).
+
+Il refuse un domaine dont le dossier, le modèle Prisma ou les permissions existent déjà (ex. `users` : le modèle `User` existe). Ensuite : adapter les champs (modèle Prisma, DTO, `constants/<entité>-select.ts`), relire les libellés générés, puis `npm run prisma:migrate -- --name add_products`.
+
+Le générateur utilise `src/examples` et `prisma/models/example.prisma` comme modèle : les garder tant que vous générez des domaines.
+
+### Supprimer le module d'exemple
 
 Supprimer le module d'exemple : `src/examples`, `prisma/models/example.prisma`, la relation `examplesCreated` du modèle `User`, `EXAMPLES_PERMISSIONS`, les méthodes `example*` de `AuditActionsService`, les valeurs `EXAMPLE*` des enums d'audit et les clés i18n `example*`.
 
@@ -247,8 +270,10 @@ npm test                        # tests unitaires
 npm run test:e2e                # tests e2e (PostgreSQL requis)
 npm run prisma:migrate          # nouvelle migration (dev)
 npm run prisma:migrate:deploy   # applique les migrations
+npm run prisma:generate         # client Prisma
 npm run prisma:seed             # comptes admin + démo
 npm run prisma:studio
+npm run modules:generate -- <domaine>   # nouveau module depuis src/examples
 npm run artillery:smoke         # charge légère (voir tests/artillery/README.md)
 npm run artillery:load
 ```

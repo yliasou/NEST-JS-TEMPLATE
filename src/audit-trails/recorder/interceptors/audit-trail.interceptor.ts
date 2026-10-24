@@ -13,6 +13,18 @@ import {
   getUserId,
 } from "../../../common/auth/authed-request";
 
+/** Express 5 type les paramètres de route wildcard (`*splat`) en `string[]`. */
+function toStringParams(
+  params: Record<string, string | string[]>,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(params).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? value.join("/") : value,
+    ]),
+  );
+}
+
 @Injectable()
 export class AuditTrailInterceptor implements NestInterceptor {
   constructor(private readonly auditTrailsService: AuditTrailsService) {}
@@ -51,7 +63,7 @@ export class AuditTrailInterceptor implements NestInterceptor {
           locationAccuracy: auditContext?.locationAccuracy,
           locationCapturedAt: auditContext?.locationCapturedAt,
           userAgent: userAgent ?? auditContext?.userAgent,
-          params: req.params,
+          params: toStringParams(req.params),
           body:
             req.body && typeof req.body === "object"
               ? (req.body as Record<string, unknown>)

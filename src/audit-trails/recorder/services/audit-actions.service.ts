@@ -315,4 +315,45 @@ export class AuditActionsService {
   }) {
     return this.recorder.trackModuleActivity(input);
   }
+  personCreated(
+    actorUserId: string,
+    personId: string,
+    metadata?: Prisma.InputJsonValue,
+  ) {
+    return this.recorder.recordAction({
+      actorUserId,
+      action: AuditAction.PERSON_CREATE,
+      entity: AuditEntity.PERSON,
+      entityId: personId,
+      metadata,
+    });
+  }
+
+  personUpdated(
+    actorUserId: string,
+    personId: string,
+    metadata?: Prisma.InputJsonValue,
+  ) {
+    return this.recorder.recordAction({
+      actorUserId,
+      action: AuditAction.PERSON_UPDATE,
+      entity: AuditEntity.PERSON,
+      entityId: personId,
+      metadata,
+    });
+  }
+
+  personDeleted(
+    actorUserId: string,
+    personId: string,
+    metadata?: Prisma.InputJsonValue,
+  ) {
+    return this.recorder.recordAction({
+      actorUserId,
+      action: AuditAction.PERSON_DELETE,
+      entity: AuditEntity.PERSON,
+      entityId: personId,
+      metadata,
+    });
+  }
 }

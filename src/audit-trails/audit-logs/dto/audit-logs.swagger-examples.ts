@@ -1,4 +1,4 @@
-import type { ExamplesObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
+import type { ExamplesObject } from "@nestjs/swagger";
 import { AuditAction, AuditEntity } from "@prisma/client";
 
 const IDS = {

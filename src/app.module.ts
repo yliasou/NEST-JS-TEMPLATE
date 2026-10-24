@@ -34,6 +34,7 @@ import { ExamplesModule } from "./examples/examples.module";
 import { perfProfilingEnabled } from "./common/perf/perf-metrics";
 import { PerfProfilingService } from "./common/perf/perf-profiling.service";
 import { PerfRequestInterceptor } from "./common/perf/perf-request.interceptor";
+import { PeopleModule } from "./people/people.module";
 
 const perfProviders = perfProfilingEnabled()
   ? [
@@ -117,6 +118,7 @@ const perfProviders = perfProfilingEnabled()
     NewsletterModule,
     SocketModule,
     ExamplesModule,
+    PeopleModule,
   ],
   providers: [
     MaintenanceMiddleware,

@@ -1,4 +1,4 @@
-import type { ExamplesObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
+import type { ExamplesObject } from "@nestjs/swagger";
 
 /**
  * Exemples Swagger pour `POST /admin/emailing/send`.

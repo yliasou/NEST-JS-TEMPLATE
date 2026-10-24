@@ -134,5 +134,12 @@
   "emailVerified": "Adresse e-mail vérifiée.",
   "emailAlreadyVerified": "Cette adresse e-mail est déjà vérifiée.",
   "emailMissing": "Aucune adresse e-mail n'est associée à ce compte.",
-  "emailMismatchSecurity": "L'adresse e-mail du compte a changé depuis l'envoi du code. Demandez un nouveau code."
+  "emailMismatchSecurity": "L'adresse e-mail du compte a changé depuis l'envoi du code. Demandez un nouveau code.",
+  "peopleFetched": "People récupérés avec succès",
+  "personFetched": "Person récupéré avec succès",
+  "personCreated": "Person créé",
+  "personUpdated": "Person mis à jour",
+  "personDeleted": "Person supprimé",
+  "personNotFound": "Person introuvable",
+  "personUpdateEmpty": "Aucun champ à mettre à jour"
 }
