@@ -18,15 +18,14 @@ export class UserAccessDataSchemaDto {
 
   @ApiProperty({
     example: false,
-    description:
-      "true si super admin explicite, ou legacy niveau ADMIN sans metadata.access.",
+    description: "true si `metadata.access.isSuperAdmin` est explicite.",
   })
   isSuperAdmin!: boolean;
 
   @ApiProperty({
     example: true,
     description:
-      "true si aucune metadata.access n’est définie : accès legacy Role.ADMIN (toutes permissions).",
+      "Toujours false (mode legacy retiré). Conservé pour compatibilité API.",
   })
   legacyFullAccess!: boolean;
 

@@ -15,8 +15,8 @@ export type EffectiveAdminAccess = {
   adminLevel: string | null;
   isSuperAdmin: boolean;
   /**
-   * true si aucune metadata.access n’est définie :
-   * comportement legacy (Role.ADMIN conserve l’accès complet).
+   * Toujours `false` : l'ancien mode legacy (admin sans metadata = tous les droits)
+   * a été retiré. Conservé pour compatibilité de réponse API.
    */
   legacyFullAccess: boolean;
   permissions: string[];

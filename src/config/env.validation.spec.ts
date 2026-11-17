@@ -21,6 +21,12 @@ describe("validateEnv", () => {
     expect(() =>
       validateEnv({ ...baseProd, JWT_SECRET: "change-me-in-production" }),
     ).toThrow(/placeholder/);
+    expect(() =>
+      validateEnv({
+        ...baseProd,
+        JWT_SECRET: "replace-with-a-random-secret-of-at-least-32-chars",
+      }),
+    ).toThrow(/placeholder/);
     expect(() => validateEnv({ ...baseProd, JWT_SECRET: "short" })).toThrow(
       /at least 32/,
     );

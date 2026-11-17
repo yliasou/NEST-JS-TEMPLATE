@@ -87,8 +87,7 @@ export class MobileApiHeadersMiddleware implements NestMiddleware {
         }
 
         const methods = layer.route.methods as
-          | Record<string, boolean>
-          | undefined;
+          Record<string, boolean> | undefined;
         const methodAllowed = methods?.[method] || methods?.all;
         if (!methodAllowed) continue;
 

@@ -7,8 +7,8 @@ import fr from "./locales/fr.json";
 export type MessageKey = keyof typeof fr;
 
 const CATALOGS: Record<Locale, Record<string, string>> = {
-  fr: fr as Record<string, string>,
-  en: en as Record<string, string>,
+  fr: fr,
+  en: en,
 };
 
 function interpolate(

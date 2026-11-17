@@ -1,5 +1,11 @@
 import * as bcrypt from "bcrypt";
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { Role } from "@prisma/client";
 import { AuditActionsService } from "../../../audit-trails/recorder/services/audit-actions.service";
 import { PrismaService } from "../../../prisma/prisma.service";
@@ -10,6 +16,7 @@ import {
   type LocalLoginUser,
   localLoginUserSelect,
 } from "./login.select";
+import { LoginAttemptsStore } from "./login-attempts.store";
 import { TokenService } from "./token.service";
 import { AuthPhoneService } from "../../phone/services/auth-phone.service";
 import { AuthUserSessionService } from "./auth-user-session.service";
@@ -41,6 +48,7 @@ export class LoginService {
     private readonly auditActions: AuditActionsService,
     private readonly authUserSession: AuthUserSessionService,
     private readonly authPhone: AuthPhoneService,
+    private readonly loginAttempts: LoginAttemptsStore,
   ) {}
 
   /** Parcours téléphone : numéro + code PIN. */
@@ -138,15 +146,31 @@ export class LoginService {
     perf: LoginPerfBreakdown,
     startedAt: number,
   ): Promise<LocalLoginUser> {
+    const identityKey = this.identityAttemptKey(params);
+
     const lookupStart = Date.now();
     const user = await this.findUserForLocalLogin(params, options.requireAdmin);
     perf.lookupMs = Date.now() - lookupStart;
+
+    // Compteur principal = userId dès que le compte existe (e-mail et téléphone
+    // partagent le même verrou). Repli sur l'identifiant saisi sinon.
+    const accountKey = user ? LoginAttemptsStore.userKey(user.id) : null;
+    if (!(await this.loginAttempts.assertNotLocked(accountKey, identityKey))) {
+      perf.statusCode = 429;
+      perf.totalMs = Date.now() - startedAt;
+      this.logLoginPerformance(perf);
+      throw new HttpException(
+        translate(locale, "loginTooManyAttempts"),
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
 
     if (
       !user ||
       user.deletedAt ||
       (options.requireAdmin && user.role !== Role.ADMIN)
     ) {
+      if (identityKey) await this.loginAttempts.recordFailure(identityKey);
       perf.statusCode = 401;
       perf.totalMs = Date.now() - startedAt;
       this.logLoginPerformance(perf);
@@ -167,6 +191,9 @@ export class LoginService {
     perf.passwordMs = Date.now() - passwordStart;
 
     if (!passwordValid) {
+      await this.loginAttempts.recordFailure(
+        LoginAttemptsStore.userKey(user.id),
+      );
       perf.statusCode = 401;
       perf.totalMs = Date.now() - startedAt;
       this.logLoginPerformance(perf);
@@ -175,7 +202,24 @@ export class LoginService {
       );
     }
 
+    await this.loginAttempts.clear(
+      LoginAttemptsStore.userKey(user.id),
+      identityKey,
+    );
     return user;
+  }
+
+  private identityAttemptKey(params: {
+    email?: string;
+    phone?: string;
+  }): string | null {
+    if (params.phone?.trim()) {
+      return LoginAttemptsStore.phoneKey(params.phone);
+    }
+    if (params.email?.trim()) {
+      return LoginAttemptsStore.emailKey(params.email);
+    }
+    return null;
   }
 
   private async findUserForLocalLogin(

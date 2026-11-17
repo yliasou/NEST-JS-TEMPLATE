@@ -11,6 +11,7 @@ export const localLoginUserSelect = {
   authProvider: true,
   isActive: true,
   deletedAt: true,
+  tokenVersion: true,
   dateOfBirth: true,
   gender: true,
   residentialAddress: true,
@@ -38,6 +39,7 @@ export type LocalLoginUser = {
   authProvider: string;
   isActive: boolean;
   deletedAt: Date | null;
+  tokenVersion: number;
   dateOfBirth: Date | null;
   gender: Gender | null;
   residentialAddress: string | null;

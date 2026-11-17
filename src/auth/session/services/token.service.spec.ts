@@ -28,6 +28,7 @@ function createService(userOverrides: Record<string, unknown> = {}) {
     authProvider: "EMAIL",
     isActive: true,
     deletedAt: null,
+    tokenVersion: 0,
     ...userOverrides,
   };
   const prisma = {

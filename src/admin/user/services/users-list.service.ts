@@ -14,8 +14,6 @@ import {
   normalizeConnectedUser,
   normalizeUserAdmin,
   USER_ADMIN_SELECT,
-  type ConnectedUserRow,
-  type UserAdminRow,
 } from "./user-admin.select";
 
 /** Plafond liste connectés (fenêtre 15 min — volume typiquement faible). */
@@ -94,7 +92,7 @@ export class UsersListService {
       take: perPage,
     });
 
-    const data = rows.map((u) => normalizeUserAdmin(u as UserAdminRow));
+    const data = rows.map((u) => normalizeUserAdmin(u));
 
     return {
       data,
@@ -132,7 +130,7 @@ export class UsersListService {
       connectedCount,
       since: since.toISOString(),
       withinMinutes,
-      users: rows.map((u) => normalizeConnectedUser(u as ConnectedUserRow)),
+      users: rows.map((u) => normalizeConnectedUser(u)),
     };
   }
 
@@ -151,6 +149,6 @@ export class UsersListService {
     if (!user) {
       throw new NotFoundException(translate(locale, "userNotFound"));
     }
-    return normalizeUserAdmin(user as UserAdminRow);
+    return normalizeUserAdmin(user);
   }
 }

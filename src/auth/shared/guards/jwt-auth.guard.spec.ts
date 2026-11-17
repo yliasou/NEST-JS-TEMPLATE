@@ -27,6 +27,7 @@ function createGuard(options: {
         isActive: options.isActive ?? true,
         deletedAt: null,
         lastRequestAt: null,
+        tokenVersion: 0,
       }),
     },
   };
@@ -58,8 +59,8 @@ function createContext(token: string) {
   return { context, request };
 }
 
-function accessToken(jwtService: JwtService, role: Role) {
-  return jwtService.sign({ sub: "user-1", type: "access", role });
+function accessToken(jwtService: JwtService, role: Role, tv = 0) {
+  return jwtService.sign({ sub: "user-1", type: "access", role, tv });
 }
 
 describe("JwtAuthGuard", () => {
@@ -107,6 +108,17 @@ describe("JwtAuthGuard", () => {
     const { guard, jwtService } = createGuard({});
     const { context } = createContext(
       jwtService.sign({ sub: "user-1", type: "refresh" }),
+    );
+
+    await expect(guard.canActivate(context)).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
+  });
+
+  it("refuse un access token dont tokenVersion ne correspond plus", async () => {
+    const { guard, jwtService } = createGuard({});
+    const { context } = createContext(
+      accessToken(jwtService, Role.USER, /* tv */ 1),
     );
 
     await expect(guard.canActivate(context)).rejects.toBeInstanceOf(

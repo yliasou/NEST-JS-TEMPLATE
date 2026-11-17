@@ -35,7 +35,7 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto, locale: Locale, actorUserId?: string) {
-    const created = await this.createSvc.create(dto, locale);
+    const created = await this.createSvc.create(dto, locale, actorUserId);
     if (actorUserId) {
       await this.auditActions.adminUserCreated(actorUserId, created.id, {
         role: dto.role,

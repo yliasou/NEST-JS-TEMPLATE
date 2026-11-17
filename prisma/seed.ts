@@ -62,10 +62,18 @@ async function main() {
     });
 
     if (seed.adminLevel) {
+      // Super admin explicite : plus d'accès « legacy » sans metadata.access.
+      const accessMetadata = {
+        access: { isSuperAdmin: true, permissions: {} },
+      };
       await prisma.adminProfile.upsert({
         where: { userId: user.id },
-        update: { level: seed.adminLevel },
-        create: { userId: user.id, level: seed.adminLevel },
+        update: { level: seed.adminLevel, metadata: accessMetadata },
+        create: {
+          userId: user.id,
+          level: seed.adminLevel,
+          metadata: accessMetadata,
+        },
       });
     }
 

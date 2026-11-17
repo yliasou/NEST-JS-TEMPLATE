@@ -4,7 +4,7 @@ import { IsBoolean, IsObject, IsOptional } from "class-validator";
 export class UpdateUserAccessDto {
   @ApiPropertyOptional({
     description:
-      "Accorder ou retirer le statut super admin. Réservé aux super admins (ou legacy niveau ADMIN).",
+      "Accorder ou retirer le statut super admin. Réservé aux super admins.",
     example: false,
   })
   @IsOptional()

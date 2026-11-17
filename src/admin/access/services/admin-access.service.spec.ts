@@ -25,7 +25,7 @@ describe("AdminAccessService", () => {
   }
 
   describe("hasPermission / getEffectiveAccess", () => {
-    it("accorde l’accès legacy quand aucune metadata.access", async () => {
+    it("refuse tout droit quand aucune metadata.access (plus de legacy)", async () => {
       const prisma = {
         user: {
           findUnique: jest.fn().mockResolvedValue(userRow()),
@@ -34,10 +34,11 @@ describe("AdminAccessService", () => {
       const service = createService(prisma);
       await expect(
         service.hasPermission(actorId, "admin.users.view"),
-      ).resolves.toBe(true);
+      ).resolves.toBe(false);
       const access = await service.getEffectiveAccess(actorId);
-      expect(access.legacyFullAccess).toBe(true);
-      expect(access.isSuperAdmin).toBe(true);
+      expect(access.legacyFullAccess).toBe(false);
+      expect(access.isSuperAdmin).toBe(false);
+      expect(access.permissions).toEqual([]);
     });
 
     it("autorise un super admin explicite", async () => {
@@ -189,9 +190,32 @@ describe("AdminAccessService", () => {
     });
 
     it("rejette une permission inconnue à l’écriture", async () => {
+      const actor = userRow({
+        adminProfile: {
+          level: AdminLevel.ADMIN,
+          metadata: {
+            access: { isSuperAdmin: true, permissions: {} },
+          },
+        },
+      });
+      const target = userRow({
+        id: targetId,
+        adminProfile: {
+          level: AdminLevel.EMPLOYEE,
+          metadata: {
+            access: { isSuperAdmin: false, permissions: {} },
+          },
+        },
+      });
       const prisma = {
         user: {
-          findUnique: jest.fn().mockResolvedValue(userRow()),
+          findUnique: jest
+            .fn()
+            .mockImplementation(({ where }: { where: { id: string } }) => {
+              if (where.id === actorId) return Promise.resolve(actor);
+              if (where.id === targetId) return Promise.resolve(target);
+              return Promise.resolve(null);
+            }),
         },
       };
       const service = createService(prisma);

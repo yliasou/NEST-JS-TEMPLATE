@@ -34,8 +34,7 @@ export class PermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const locale = this.locale(request);
     const user = request["user"] as
-      | { id?: string; sub?: string; role?: string }
-      | undefined;
+      { id?: string; sub?: string; role?: string } | undefined;
     const userId = user?.id ?? user?.sub;
 
     if (!userId) {

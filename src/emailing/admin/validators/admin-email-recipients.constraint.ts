@@ -5,9 +5,7 @@ import {
 } from "class-validator";
 
 @ValidatorConstraint({ name: "adminEmailHasRecipients", async: false })
-export class AdminEmailHasRecipientsConstraint
-  implements ValidatorConstraintInterface
-{
+export class AdminEmailHasRecipientsConstraint implements ValidatorConstraintInterface {
   validate(_value: unknown, args: ValidationArguments): boolean {
     const dto = args.object as { userIds?: string[]; emails?: string[] };
     const userCount = dto.userIds?.length ?? 0;

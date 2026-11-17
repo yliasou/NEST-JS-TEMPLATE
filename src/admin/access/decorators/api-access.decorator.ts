@@ -18,8 +18,8 @@ import { UpdateUserAccessDto } from "../dto/update-user-access.dto";
 const ACCESS_SECURITY =
   "Accès réservé aux comptes `Role.ADMIN`. " +
   "Les permissions granulaires sont lues depuis `AdminProfile.metadata.access`. " +
-  "Sans metadata : comportement legacy (accès complet). " +
-  "Super admin / legacy full access : toutes les permissions.";
+  "Sans metadata.access : aucun droit. " +
+  "Super admin explicite (`isSuperAdmin`) : toutes les permissions.";
 
 function buildDecorator(config: {
   summary: string;
@@ -176,7 +176,7 @@ export function ApiUpdateUserAccess() {
     description:
       "Met à jour `isSuperAdmin` et/ou `permissions` dans `AdminProfile.metadata.access`. " +
       "Règles : pas d’auto-modification ; on ne peut pas donner une permission qu’on ne possède pas " +
-      "(sauf super admin / legacy) ; on ne peut pas retirer le dernier super admin. " +
+      "(sauf super admin) ; on ne peut pas retirer le dernier super admin. " +
       "Audit : `ADMIN_ACCESS_UPDATE` (+ permission / super-admin si applicable). " +
       "Permission requise : `admin.access.update`.",
     params: [
@@ -223,7 +223,7 @@ export function ApiResetUserAccess() {
   return buildDecorator({
     summary: "Réinitialiser les droits custom",
     description:
-      "Supprime `metadata.access` et revient au comportement legacy (selon rôle / niveau). " +
+      "Supprime `metadata.access` : l'admin n'a plus aucun droit jusqu'à réattribution. " +
       "Audit : `ADMIN_ACCESS_RESET`. " +
       "Permission requise : `admin.access.reset`.",
     params: [

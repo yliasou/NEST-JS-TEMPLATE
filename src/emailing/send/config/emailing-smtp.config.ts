@@ -38,11 +38,11 @@ export function resolveEmailingSmtpConfig(
 
   const valid = Boolean(
     enabled &&
-      host.length > 0 &&
-      port > 0 &&
-      user &&
-      password &&
-      defaultFromEmail,
+    host.length > 0 &&
+    port > 0 &&
+    user &&
+    password &&
+    defaultFromEmail,
   );
 
   return {

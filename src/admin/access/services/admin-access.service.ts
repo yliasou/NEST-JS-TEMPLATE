@@ -30,8 +30,6 @@ import {
   parseAdminProfileMetadata,
 } from "../utils/access-metadata.util";
 
-const SUPER_ADMIN_LEVELS: AdminLevel[] = [AdminLevel.ADMIN];
-
 type UserAccessRow = {
   id: string;
   role: Role;
@@ -76,7 +74,7 @@ export class AdminAccessService {
       return false;
     }
     const access = await this.getEffectiveAccess(userId, locale);
-    if (access.isSuperAdmin || access.legacyFullAccess) {
+    if (access.isSuperAdmin) {
       return true;
     }
     return access.permissionsMap[permission] === true;
@@ -279,14 +277,11 @@ export class AdminAccessService {
       strict: false,
     });
     const level = user.adminProfile?.level ?? null;
-    const legacyFullAccess = stored == null && user.role === Role.ADMIN;
-    const isSuperAdmin =
-      stored?.isSuperAdmin === true ||
-      (legacyFullAccess && level != null && SUPER_ADMIN_LEVELS.includes(level));
-
+    // Plus d'accès « legacy » : sans metadata.access, un admin n'a aucun droit
+    // (sauf isSuperAdmin explicite). Le seed pose isSuperAdmin sur le compte initial.
+    const isSuperAdmin = stored?.isSuperAdmin === true;
     const permissionsMap = stored?.permissions ?? {};
-    const fullAccess = isSuperAdmin || legacyFullAccess;
-    const permissions = fullAccess
+    const permissions = isSuperAdmin
       ? [...ALL_PERMISSION_KEYS]
       : grantedPermissionKeys(permissionsMap);
 
@@ -295,9 +290,9 @@ export class AdminAccessService {
       role: user.role,
       adminLevel: level,
       isSuperAdmin,
-      legacyFullAccess,
+      legacyFullAccess: false,
       permissions,
-      permissionsMap: fullAccess
+      permissionsMap: isSuperAdmin
         ? Object.fromEntries(ALL_PERMISSION_KEYS.map((k) => [k, true]))
         : permissionsMap,
     };
@@ -377,7 +372,7 @@ export class AdminAccessService {
     permissions: Record<string, boolean>,
     locale: Locale,
   ) {
-    if (actor.isSuperAdmin || actor.legacyFullAccess) return;
+    if (actor.isSuperAdmin) return;
 
     for (const [key, granted] of Object.entries(permissions)) {
       if (!granted) continue;
@@ -419,12 +414,7 @@ export class AdminAccessService {
       const stored = extractAccessPayload(u.adminProfile?.metadata, {
         strict: false,
       });
-      if (stored?.isSuperAdmin === true) return true;
-      if (stored == null) {
-        const level = u.adminProfile?.level;
-        return level != null && SUPER_ADMIN_LEVELS.includes(level);
-      }
-      return false;
+      return stored?.isSuperAdmin === true;
     });
 
     if (otherSuperAdmins.length === 0) {
@@ -451,7 +441,7 @@ export class AdminAccessService {
     await this.prisma.adminProfile.update({
       where: { userId: targetUserId },
       data: {
-        metadata: nextMeta as Prisma.InputJsonValue,
+        metadata: nextMeta,
       },
     });
   }

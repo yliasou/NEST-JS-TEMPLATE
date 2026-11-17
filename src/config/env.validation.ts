@@ -1,6 +1,8 @@
 const JWT_SECRET_MIN_LENGTH = 32;
 const KNOWN_PLACEHOLDER_SECRETS = new Set([
   "change-me-in-production",
+  "change-me-in-production-must-be-at-least-32-chars",
+  "replace-with-a-random-secret-of-at-least-32-chars",
   "changeme",
   "secret",
 ]);

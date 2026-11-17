@@ -135,11 +135,6 @@
   "emailAlreadyVerified": "This email address is already verified.",
   "emailMissing": "No email address is linked to this account.",
   "emailMismatchSecurity": "The account email changed since the code was sent. Request a new code.",
-  "peopleFetched": "People retrieved successfully",
-  "personFetched": "Person retrieved successfully",
-  "personCreated": "Person created",
-  "personUpdated": "Person updated",
-  "personDeleted": "Person deleted",
-  "personNotFound": "Person not found",
-  "personUpdateEmpty": "No field to update"
+  "loginTooManyAttempts": "Too many login attempts. Try again in 15 minutes.",
+  "adminUsersCannotCreateAdmin": "You are not allowed to create an administrator account."
 }

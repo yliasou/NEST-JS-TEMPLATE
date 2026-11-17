@@ -73,7 +73,7 @@ Sans `REDIS_URL`, l'application démarre quand même : cache en mémoire, OTP in
 | `socket` | Gateway `/realtime` authentifiée par JWT |
 | `health` | Sondes liveness / readiness |
 
-Socle transversal (`src/common`) : format de réponse uniforme, filtre global d'exceptions, validation 422, i18n fr/en, Helmet, CORS, rate limiting (Redis optionnel), blocage d'IP, mode maintenance, contrôle de version mobile, profilage des requêtes.
+Socle transversal (`src/common`) : format de réponse uniforme, filtre global d'exceptions, validation 422, i18n fr/en, Helmet, CORS, rate limiting par IP **et** par e-mail/téléphone (Redis optionnel), blocage d'IP, mode maintenance, contrôle de version mobile, profilage des requêtes.
 
 ## Authentification
 
@@ -114,7 +114,8 @@ Sans fournisseur pour le canal, l'envoi répond 503 (l'inscription e-mail réuss
 - Deux rôles : `USER` (application) et `ADMIN` (backoffice), avec `AdminLevel` (`ADMIN`, `EMPLOYEE`, `SUPPORT`).
 - `@Roles(Role.ADMIN)` restreint un contrôleur ; le contrôle est fait par `JwtAuthGuard`.
 - `@RequirePermission("module.sousModule.action")` ajoute une permission fine (`PermissionsGuard` global).
-- Un admin de niveau `ADMIN` sans `metadata.access` a tous les droits (accès « legacy »). Les droits fins sont stockés dans `AdminProfile.metadata.access`.
+- Les droits fins sont stockés dans `AdminProfile.metadata.access`. Sans cette metadata, un admin n'a **aucun** droit. Le seed pose `isSuperAdmin: true` sur le compte initial.
+- Créer un compte `ADMIN` exige la permission `admin.users.create_admin` (absente du modèle `USER_MANAGER`). Le nouveau compte démarre sans droits jusqu'à attribution.
 - Nouvelles permissions : `src/admin/access/constants/permissions.catalog.ts`.
 
 ## Organisation des dossiers
@@ -280,8 +281,8 @@ npm run artillery:load
 
 ## Déploiement
 
-- **Railway** : `railway.toml` (migrations puis `npm run start`).
-- **CI** : `.gitlab-ci.yml` (validate Prisma, lint, typecheck, tests, build).
+- **Railway** : `railway.toml` (build + `prisma migrate deploy` puis `npm run start`).
+- **CI** : `.github/workflows/ci.yml` (validate Prisma, lint, typecheck, tests, build).
 
 En production, `src/config/env.validation.ts` refuse de démarrer sans `REDIS_URL`, avec un `JWT_SECRET` faible ou avec les options de debug (`OTP_RETURN_CODE_IN_RESPONSE`, `OTP_LOG_CODE`, `SOCKET_AUTH_ALLOW_PLAIN_USERID`).
 

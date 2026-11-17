@@ -23,9 +23,7 @@ import {
 import { normalizePhoneInput } from "../../../auth/phone/utils/phone-normalize.util";
 
 @ValidatorConstraint({ name: "adminCreateUserPasswordMinLength", async: false })
-class AdminCreateUserPasswordMinLengthConstraint
-  implements ValidatorConstraintInterface
-{
+class AdminCreateUserPasswordMinLengthConstraint implements ValidatorConstraintInterface {
   validate(value: unknown, args: ValidationArguments): boolean {
     if (typeof value !== "string") return false;
     return isAdminUserPasswordValid(

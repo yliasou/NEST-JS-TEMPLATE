@@ -248,7 +248,7 @@ export class UploadsService implements OnModuleInit {
     maxBytes: number,
     kind: string,
   ) {
-    const s = Number.isFinite(size as number) ? (size as number) : 0;
+    const s = Number.isFinite(size) ? (size as number) : 0;
     if (s <= 0) {
       throw new BadRequestException(`No ${kind} content provided`);
     }

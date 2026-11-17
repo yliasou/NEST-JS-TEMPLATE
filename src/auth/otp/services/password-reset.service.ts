@@ -101,9 +101,13 @@ export class AuthOtpPasswordResetService {
     newPassword: string,
   ): Promise<void> {
     const passwordHash = await bcrypt.hash(newPassword, AUTH_OTP_BCRYPT_ROUNDS);
+    // `tokenVersion` invalide access + refresh tokens déjà émis.
     await this.prisma.user.update({
       where: { id: userId },
-      data: { passwordHash },
+      data: {
+        passwordHash,
+        tokenVersion: { increment: 1 },
+      },
     });
   }
 }

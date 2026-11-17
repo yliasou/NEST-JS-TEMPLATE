@@ -24,6 +24,7 @@ import {
 import { TokenService } from "./session/services/token.service";
 import { RegisterService } from "./registration/services/register.service";
 import { LoginService } from "./session/services/login.service";
+import { LoginAttemptsStore } from "./session/services/login-attempts.store";
 import { LogoutService } from "./session/services/logout.service";
 import { DeactivateAccountService } from "./account/services/deactivate-account.service";
 import { AuthPhoneService } from "./phone/services/auth-phone.service";
@@ -57,6 +58,7 @@ import { AuthUserSessionService } from "./session/services/auth-user-session.ser
     AuthEmailService,
     TokenService,
     RegisterService,
+    LoginAttemptsStore,
     LoginService,
     LogoutService,
     DeactivateAccountService,

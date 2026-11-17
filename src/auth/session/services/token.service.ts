@@ -53,17 +53,19 @@ export class TokenService {
   signTokenPair(
     userId: string,
     role: Role,
+    tokenVersion = 0,
   ): { accessToken: string; refreshToken: string } {
     const accessExpiresIn = getJwtAccessExpiresInSeconds();
     const refreshExpiresIn = getJwtRefreshExpiresInSeconds();
+    const tv = tokenVersion;
 
     return {
       accessToken: this.jwtService.sign(
-        { sub: userId, type: "access", role },
+        { sub: userId, type: "access", role, tv },
         { expiresIn: accessExpiresIn, jwtid: randomUUID() },
       ),
       refreshToken: this.jwtService.sign(
-        { sub: userId, type: "refresh" },
+        { sub: userId, type: "refresh", tv },
         { expiresIn: refreshExpiresIn, jwtid: randomUUID() },
       ),
     };
@@ -75,6 +77,7 @@ export class TokenService {
     phone: string | null;
     avatarUrl: string | null;
     role: string;
+    tokenVersion?: number;
     dateOfBirth?: Date | null;
     gender?: Gender | null;
     residentialAddress?: string | null;
@@ -88,7 +91,11 @@ export class TokenService {
       level: string;
     } | null;
   }): AuthResponse {
-    const tokens = this.signTokenPair(user.id, user.role as Role);
+    const tokens = this.signTokenPair(
+      user.id,
+      user.role as Role,
+      user.tokenVersion ?? 0,
+    );
     const name = buildDisplayName(user.profile);
     const demographics = mapUserDemographics({
       dateOfBirth: user.dateOfBirth ?? null,
@@ -126,7 +133,12 @@ export class TokenService {
         ),
       );
 
-    type RefreshPayload = { sub: string; type?: string; exp?: number };
+    type RefreshPayload = {
+      sub: string;
+      type?: string;
+      exp?: number;
+      tv?: number;
+    };
 
     let payload: RefreshPayload;
     try {
@@ -154,9 +166,15 @@ export class TokenService {
         authProvider: true,
         isActive: true,
         deletedAt: true,
+        tokenVersion: true,
       },
     });
-    if (!user || !user.isActive || user.deletedAt) {
+    if (
+      !user ||
+      !user.isActive ||
+      user.deletedAt ||
+      (payload.tv ?? 0) !== user.tokenVersion
+    ) {
       throw refreshInvalid();
     }
 
@@ -166,7 +184,7 @@ export class TokenService {
 
     void this.authUserSession.touchLastLoginAt(user.id);
 
-    return this.signTokenPair(user.id, user.role);
+    return this.signTokenPair(user.id, user.role, user.tokenVersion);
   }
 
   /**
@@ -217,9 +235,20 @@ export class TokenService {
 
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, role: true, isActive: true, deletedAt: true },
+      select: {
+        id: true,
+        role: true,
+        isActive: true,
+        deletedAt: true,
+        tokenVersion: true,
+      },
     });
-    if (!user || !user.isActive || user.deletedAt) {
+    if (
+      !user ||
+      !user.isActive ||
+      user.deletedAt ||
+      (payload.tv ?? 0) !== user.tokenVersion
+    ) {
       return {
         ok: false,
         reason: "sub_introuvable_en_base",

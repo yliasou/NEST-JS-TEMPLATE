@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { AdminAccessModule } from "../access/access.module";
 import { AuditTrailsModule } from "../../audit-trails/audit-trails.module";
 import { AppCacheModule } from "../../cache/cache.module";
 import { PrismaModule } from "../../prisma/prisma.module";
@@ -10,7 +11,7 @@ import { UsersService } from "./services/users.service";
 import { UsersUpdateService } from "./services/users-update.service";
 
 @Module({
-  imports: [PrismaModule, AppCacheModule, AuditTrailsModule],
+  imports: [PrismaModule, AppCacheModule, AuditTrailsModule, AdminAccessModule],
   controllers: [UserController],
   providers: [
     AdminUsersCacheService,

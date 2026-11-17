@@ -2,8 +2,7 @@ import { DEFAULT_CACHE_TTL_MS } from "../../../cache/cache-ttl.constants";
 import { createCacheNamespace } from "../../../cache/cache-namespace";
 
 export type NotificationsCacheSegment =
-  | "notifications-list"
-  | "notification-detail";
+  "notifications-list" | "notification-detail";
 
 /** Cache Redis pour les notifications. Génération incrémentée après chaque écriture. */
 const notificationsCache =

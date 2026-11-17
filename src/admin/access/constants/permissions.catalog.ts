@@ -7,6 +7,8 @@ export const ADMIN_PERMISSIONS = {
   // Administration — Utilisateurs
   USERS_VIEW: "admin.users.view",
   USERS_CREATE: "admin.users.create",
+  /** Création d'un compte `ADMIN` (hors modèle USER_MANAGER). */
+  USERS_CREATE_ADMIN: "admin.users.create_admin",
   USERS_UPDATE: "admin.users.update",
   USERS_DELETE: "admin.users.delete",
   USERS_TOGGLE_STATUS: "admin.users.toggle_status",
@@ -47,18 +49,10 @@ export const EXAMPLES_PERMISSIONS = {
   DELETE: "examples.examples.delete",
 } as const;
 
-export const PEOPLE_PERMISSIONS = {
-  VIEW: "people.people.view",
-  CREATE: "people.people.create",
-  UPDATE: "people.people.update",
-  DELETE: "people.people.delete",
-} as const;
-
 export const ALL_PERMISSION_KEYS = [
   ...Object.values(ADMIN_PERMISSIONS),
   ...Object.values(MARKETING_PERMISSIONS),
   ...Object.values(EXAMPLES_PERMISSIONS),
-  ...Object.values(PEOPLE_PERMISSIONS),
 ] as const;
 
 export type PermissionKey = (typeof ALL_PERMISSION_KEYS)[number];
@@ -99,6 +93,7 @@ export function getPermissionsCatalog(): PermissionCatalogGroup[] {
     groupFrom("admin", "users", [
       ADMIN_PERMISSIONS.USERS_VIEW,
       ADMIN_PERMISSIONS.USERS_CREATE,
+      ADMIN_PERMISSIONS.USERS_CREATE_ADMIN,
       ADMIN_PERMISSIONS.USERS_UPDATE,
       ADMIN_PERMISSIONS.USERS_DELETE,
       ADMIN_PERMISSIONS.USERS_TOGGLE_STATUS,
@@ -138,12 +133,6 @@ export function getPermissionsCatalog(): PermissionCatalogGroup[] {
       EXAMPLES_PERMISSIONS.CREATE,
       EXAMPLES_PERMISSIONS.UPDATE,
       EXAMPLES_PERMISSIONS.DELETE,
-    ]),
-    groupFrom("people", "people", [
-      PEOPLE_PERMISSIONS.VIEW,
-      PEOPLE_PERMISSIONS.CREATE,
-      PEOPLE_PERMISSIONS.UPDATE,
-      PEOPLE_PERMISSIONS.DELETE,
     ]),
   ];
 }

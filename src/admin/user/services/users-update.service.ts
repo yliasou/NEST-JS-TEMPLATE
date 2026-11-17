@@ -19,7 +19,6 @@ import {
   normalizeUserAdmin,
   USER_ADMIN_SELECT,
   USERS_BCRYPT_ROUNDS,
-  type UserAdminRow,
 } from "./user-admin.select";
 
 @Injectable()
@@ -140,6 +139,7 @@ export class UsersUpdateService {
         );
       }
       data.passwordHash = await bcrypt.hash(dto.password, USERS_BCRYPT_ROUNDS);
+      data.tokenVersion = { increment: 1 };
     }
 
     if (dto.firstName !== undefined || dto.lastName !== undefined) {
@@ -193,7 +193,7 @@ export class UsersUpdateService {
     });
     bumpAdminUsersCacheGeneration();
     return {
-      user: normalizeUserAdmin(updated as UserAdminRow),
+      user: normalizeUserAdmin(updated),
       previousIsActive: Boolean(existing.isActive),
     };
   }

@@ -1,6 +1,13 @@
 import * as bcrypt from "bcrypt";
-import { Injectable, UnprocessableEntityException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  UnprocessableEntityException,
+} from "@nestjs/common";
 import { AdminLevel, Prisma, Role } from "@prisma/client";
+import { AdminAccessService } from "../../access/services/admin-access.service";
+import { ADMIN_PERMISSIONS } from "../../access/constants/permissions.catalog";
+import { emptyAccessPayload } from "../../access/types/access-metadata.types";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { translate, type Locale } from "../../../common/i18n";
 import { normalizePhoneE164 } from "../../../auth/phone/utils/phone-normalize.util";
@@ -11,14 +18,16 @@ import {
   normalizeUserAdmin,
   USER_ADMIN_SELECT,
   USERS_BCRYPT_ROUNDS,
-  type UserAdminRow,
 } from "./user-admin.select";
 
 @Injectable()
 export class UsersCreateService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly adminAccess: AdminAccessService,
+  ) {}
 
-  async create(dto: CreateUserDto, locale: Locale) {
+  async create(dto: CreateUserDto, locale: Locale, actorUserId?: string) {
     const email = dto.email.trim().toLowerCase();
 
     const existingEmail = await this.prisma.user.findUnique({
@@ -81,10 +90,24 @@ export class UsersCreateService {
     };
 
     if (dto.role === Role.ADMIN) {
+      if (actorUserId) {
+        const canCreateAdmin = await this.adminAccess.hasPermission(
+          actorUserId,
+          ADMIN_PERMISSIONS.USERS_CREATE_ADMIN,
+          locale,
+        );
+        if (!canCreateAdmin) {
+          throw new ForbiddenException(
+            translate(locale, "adminUsersCannotCreateAdmin"),
+          );
+        }
+      }
+      // Moindre privilège : aucun droit tant qu'un super admin n'attribue pas d'accès.
       data.adminProfile = {
         create: {
           level: dto.adminLevel ?? AdminLevel.EMPLOYEE,
           department: dto.department?.trim() || undefined,
+          metadata: { access: emptyAccessPayload() },
         },
       };
     }
@@ -94,6 +117,6 @@ export class UsersCreateService {
       select: USER_ADMIN_SELECT,
     });
     bumpAdminUsersCacheGeneration();
-    return normalizeUserAdmin(created as UserAdminRow);
+    return normalizeUserAdmin(created);
   }
 }

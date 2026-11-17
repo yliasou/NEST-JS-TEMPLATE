@@ -135,11 +135,6 @@
   "emailAlreadyVerified": "Cette adresse e-mail est déjà vérifiée.",
   "emailMissing": "Aucune adresse e-mail n'est associée à ce compte.",
   "emailMismatchSecurity": "L'adresse e-mail du compte a changé depuis l'envoi du code. Demandez un nouveau code.",
-  "peopleFetched": "People récupérés avec succès",
-  "personFetched": "Person récupéré avec succès",
-  "personCreated": "Person créé",
-  "personUpdated": "Person mis à jour",
-  "personDeleted": "Person supprimé",
-  "personNotFound": "Person introuvable",
-  "personUpdateEmpty": "Aucun champ à mettre à jour"
+  "loginTooManyAttempts": "Trop de tentatives de connexion. Réessayez dans 15 minutes.",
+  "adminUsersCannotCreateAdmin": "Vous n'êtes pas autorisé à créer un compte administrateur."
 }

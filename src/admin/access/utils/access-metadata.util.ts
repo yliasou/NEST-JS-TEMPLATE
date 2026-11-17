@@ -74,7 +74,7 @@ export function parseAdminProfileMetadata(
   const accessRaw = root.access;
 
   if (accessRaw == null) {
-    return root as AdminProfileMetadata;
+    return root;
   }
 
   if (typeof accessRaw !== "object" || Array.isArray(accessRaw)) {
@@ -84,7 +84,7 @@ export function parseAdminProfileMetadata(
       );
     }
     const { access: _ignored, ...rest } = root;
-    return rest as AdminProfileMetadata;
+    return rest;
   }
 
   const accessObj = accessRaw as Record<string, unknown>;

@@ -21,6 +21,8 @@ export interface JwtPayload {
   sub: string;
   type?: string;
   role?: Role;
+  /** Incrémenté à chaque changement de mot de passe / PIN. */
+  tv?: number;
 }
 
 const jwtUserLookupSelect = {
@@ -29,6 +31,7 @@ const jwtUserLookupSelect = {
   isActive: true,
   deletedAt: true,
   lastRequestAt: true,
+  tokenVersion: true,
 } as const;
 
 @Injectable()
@@ -50,16 +53,13 @@ export class JwtAuthGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    const path = request.path || request.url.split("?")[0];
-    if (isPublic || this.isDocsOrOpenApiPath(path)) {
+    if (isPublic) {
       const token = this.extractToken(request);
       if (token) {
         try {
           await this.attachUserFromToken(request, context, token, locale);
-        } catch (e) {
-          if (!isPublic) {
-            throw e;
-          }
+        } catch {
+          // Route publique : un jeton invalide n'empêche pas l'accès.
         }
       }
       return true;
@@ -131,6 +131,12 @@ export class JwtAuthGuard implements CanActivate {
       );
     }
 
+    if ((payload.tv ?? 0) !== user.tokenVersion) {
+      throw new UnauthorizedException(
+        translate(locale, "tokenInvalidOrExpired"),
+      );
+    }
+
     this.userSession.noteAuthenticatedRequest(user.id, user.lastRequestAt);
     return user.role;
   }
@@ -157,10 +163,6 @@ export class JwtAuthGuard implements CanActivate {
 
   private locale(req: Request): Locale {
     return req.locale ?? normalizeLocale(req.headers.language as string);
-  }
-
-  private isDocsOrOpenApiPath(path: string): boolean {
-    return /\/docs(\/|$)/.test(path) || path.includes("docs-json");
   }
 
   private extractToken(request: Request): string | undefined {
